@@ -1,3 +1,5 @@
+[![](https://dockerbuildbadges.quelltext.eu/status.svg?organization=axcosta&repository=katalon-docker)](https://hub.docker.com/r/niccokunzmann/dockerhub-build-status-image/builds/)
+
 # Introduction
 
 This project is based upon the official https://github.com/katalon-studio/docker-images and adds an Alpine Linux based Docker container image without ANY browsers to be used on CI/CD tools (such as Jenkins) and Selenium Grid based tools.
