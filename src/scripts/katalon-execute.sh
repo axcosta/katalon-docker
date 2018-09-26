@@ -24,12 +24,12 @@ report_dir=$KATALON_KATALON_ROOT_DIR/report
 mkdir -p $report_dir
 
 # build command line
-project_file=$(find $project_dir -maxdepth 1 -type f -name "*.prj")
-cmd="$KATALON_KATALON_INSTALL_DIR/katalon -runMode=console -reportFolder=$report_dir -projectPath=$project_file $KATALON_OPTS"
+# project_file=$(find $project_dir -maxdepth 1 -type f -name "*.prj")
+# cmd="$KATALON_KATALON_INSTALL_DIR/katalon -runMode=console -reportFolder=$report_dir -projectPath=$project_file $KATALON_OPTS"
 
 $KATALON_BASE_ROOT_DIR/scripts/xvfb.sh start
 cd $tmp_dir
-eval "$cmd"
+# eval "$cmd"
 
 chmod -R 777 $report_dir
 
