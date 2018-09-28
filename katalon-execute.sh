@@ -2,6 +2,10 @@
 
 set -xe
 
+XVFB=/usr/bin/Xvfb
+XVFBARGS="$DISPLAY -screen 0 $DISPLAY_CONFIGURATION -fbdir /var/run -ac"
+PIDFILE=/var/run/xvfb.pid
+
 echo "Starting Katalon Studio"
 
 current_dir=$(pwd)
@@ -27,7 +31,10 @@ mkdir -p $report_dir
 # project_file=$(find $project_dir -maxdepth 1 -type f -name "*.prj")
 # cmd="$KATALON_KATALON_INSTALL_DIR/katalon -runMode=console -reportFolder=$report_dir -projectPath=$project_file $KATALON_OPTS"
 
-$KATALON_BASE_ROOT_DIR/scripts/xvfb.sh start
+echo -n "Starting virtual X frame buffer $DISPLAY $DISPLAY_CONFIGURATION"
+start-stop-daemon --start --quiet --pidfile $PIDFILE --make-pidfile --background --exec $XVFB -- $XVFBARGS
+echo "."
+
 cd $tmp_dir
 # eval "$cmd"
 

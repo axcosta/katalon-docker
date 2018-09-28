@@ -1,30 +1,35 @@
-FROM alpine:3.8
+FROM alpine:3.8 AS alpine-jre
 
-# common environment variables
+## Install tools
+RUN apk update && apk upgrade \
+## Install curl
+    && apk add curl \
+## Install pv
+    && apk add pv \
+## Install Xvfb
+    && apk add xvfb \
+## Install JRE
+    && apk add openjdk8-jre
 
-ENV KATALON_ROOT_DIR=/katalon
-ENV KATALON_KATALON_ROOT_DIR=$KATALON_ROOT_DIR/katalon
-ENV KATALON_MAKE_EXECUTABLE_SCRIPT=$KATALON_KATALON_ROOT_DIR/make_executable.sh
-ENV KATALON_CLEAN_UP_SCRIPT=$KATALON_KATALON_ROOT_DIR/cleanup.sh
+FROM alpine-jre
+
+# environment variables
+
+ARG KATALON_VERSION=5.7.0
+ENV KATALON_DIRECTORY=$KATALON_VERSION
+ENV KATALON_PACKAGE=Katalon_Studio_Linux_64-$KATALON_VERSION.tar.gz
 ENV KATALON_VERSION_FILE=/katalon/version
-ENV KATALON_KATALON_INSTALL_DIR_PARENT=/opt
-ENV KATALON_KATALON_INSTALL_DIR=$KATALON_KATALON_INSTALL_DIR_PARENT/katalonstudio
+ENV KATALON_INSTALL_DIR=opt/katalonstudio
+ENV PATH=$PATH:$KATALON_INSTALL_DIR
 
-# bash
-RUN /bin/sh -c "apk add --no-cache bash"
+# Install Katalon
+RUN mkdir -p $KATALON_INSTALL_DIR && chmod -R 777 $KATALON_INSTALL_DIR
+RUN curl -s http://download.katalon.com/$KATALON_DIRECTORY/$KATALON_PACKAGE | pv | tar xz -C $KATALON_INSTALL_DIR
+RUN chmod u+x $KATALON_INSTALL_DIR/katalon \
+    && chmod u+x $KATALON_INSTALL_DIR/configuration/resources/drivers/chromedriver_linux64/chromedriver \
+    && echo "Katalon Studio $KATALON_VERSION" >> $KATALON_VERSION_FILE
 
-## katalon
-RUN mkdir -p $KATALON_KATALON_ROOT_DIR
-WORKDIR $KATALON_KATALON_ROOT_DIR
-ADD ./src ./
+WORKDIR $KATALON_INSTALL_DIR
 
-# build
-RUN chmod a+x $KATALON_MAKE_EXECUTABLE_SCRIPT
-RUN $KATALON_MAKE_EXECUTABLE_SCRIPT .
-
-RUN ./index.sh
-RUN $KATALON_CLEAN_UP_SCRIPT
-
-WORKDIR /
-
-ENTRYPOINT cat $KATALON_VERSION_FILE && $KATALON_KATALON_ROOT_DIR/scripts/katalon-execute.sh
+ENTRYPOINT ["./katalon", "-runMode=console", "-browserType=Remote", "$KATALON_OPTS"]
+# CMD ["-runMode=console"]
